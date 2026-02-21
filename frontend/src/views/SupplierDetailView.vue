@@ -25,88 +25,243 @@ onMounted(async () => {
 
 <template>
   <div>
-    <button class="back-btn" @click="router.back()">← Back to Suppliers</button>
+    <!-- Breadcrumb -->
+    <p class="breadcrumb">
+      <router-link :to="{ name: 'suppliers' }" class="breadcrumb-link">My Suppliers</router-link>
+      <span class="breadcrumb-sep"> › </span>
+      <span v-if="supplier">{{ supplier.name }}</span>
+    </p>
+
+    <h1 class="page-title">Supplier Details</h1>
 
     <div v-if="loading" class="loading">Loading…</div>
-    <div v-else-if="supplier">
-      <h2>{{ supplier.name }}</h2>
-      <p class="description">{{ supplier.description }}</p>
+    <div v-else-if="supplier" class="content">
+      <!-- Two-column layout -->
+      <div class="two-col">
+        <!-- Left: info card -->
+        <div class="info-card">
+          <div class="info-row">
+            <p class="info-label">Supplier Name</p>
+            <p class="info-value">{{ supplier.name }}</p>
+          </div>
+          <div class="info-row">
+            <p class="info-label">Description</p>
+            <p class="info-value">{{ supplier.description || '—' }}</p>
+          </div>
+          <div class="info-row">
+            <p class="info-label">Ingredients</p>
+            <p class="info-value">{{ ingredients.length }}</p>
+          </div>
+        </div>
 
-      <h3>Ingredients ({{ ingredients.length }})</h3>
-      <table class="ingredients-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Unit</th>
-            <th>Price / unit</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="ing in ingredients" :key="ing.id">
-            <td>{{ ing.name }}</td>
-            <td class="desc-cell">{{ ing.description }}</td>
-            <td>{{ ing.unit }}</td>
-            <td>£{{ ing.price_per_unit }}</td>
-          </tr>
-        </tbody>
-      </table>
+        <!-- Right: actions card -->
+        <div class="actions-card">
+          <p class="actions-title">Actions</p>
+          <button
+            class="btn-primary"
+            @click="router.push({ name: 'order-create', query: { supplier: supplier?.id } })"
+          >
+            Place Order
+          </button>
+        </div>
+      </div>
+
+      <!-- Ingredients table -->
+      <section class="ingredients-section">
+        <h2 class="section-title">Ingredients</h2>
+        <div v-if="ingredients.length === 0" class="empty">No ingredients listed.</div>
+        <div v-else class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>NAME</th>
+                <th>UNIT</th>
+                <th>PRICE PER UNIT</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="ing in ingredients" :key="ing.id">
+                <td class="ing-name">{{ ing.name }}</td>
+                <td>{{ ing.unit }}</td>
+                <td>£{{ ing.price_per_unit }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   </div>
 </template>
 
 <style scoped>
-.back-btn {
-  background: none;
-  border: none;
-  color: #1a56db;
-  font-size: 0.875rem;
-  cursor: pointer;
-  padding: 0;
-  margin-bottom: 1.25rem;
+.breadcrumb {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
-.back-btn:hover {
-  text-decoration: underline;
+.breadcrumb-link {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.breadcrumb-link:hover {
+  color: var(--purple);
+}
+
+.breadcrumb-sep {
+  margin: 0 0.4rem;
+}
+
+.page-title {
+  margin: 0 0 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--purple);
 }
 
 .loading {
-  color: #6b7280;
+  color: var(--muted);
 }
 
-h2 {
-  margin-top: 0;
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-.description {
-  color: #4b5563;
-  max-width: 700px;
-  line-height: 1.6;
+/* Two-column */
+.two-col {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
 }
 
-.ingredients-table {
+/* Info card */
+.info-card {
+  flex: 1;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.info-label {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.info-value {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+/* Actions card */
+.actions-card {
+  width: 240px;
+  background: #EDE9FE;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.actions-title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--purple);
+}
+
+.btn-primary {
+  background: var(--purple);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-primary:hover {
+  background: var(--purple-dark);
+}
+
+/* Ingredients section */
+.ingredients-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--purple);
+}
+
+.empty {
+  color: var(--muted);
+}
+
+.table-wrap {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
-  margin-top: 0.75rem;
+  font-size: 0.875rem;
 }
 
-.ingredients-table th,
-.ingredients-table td {
-  padding: 0.65rem 0.75rem;
+.data-table th {
+  padding: 0.75rem 1rem;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  background: #FAFAFA;
+  border-bottom: 1px solid var(--border);
 }
 
-.ingredients-table th {
-  font-weight: 600;
-  color: #374151;
-  background: #f9fafb;
+.data-table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
 }
 
-.desc-cell {
-  color: #6b7280;
-  font-size: 0.85rem;
-  max-width: 300px;
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ing-name {
+  font-weight: 500;
 }
 </style>

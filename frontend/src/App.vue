@@ -1,34 +1,102 @@
 <script setup lang="ts">
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "./composables/useAuth";
+import api from "./services/api";
+import type { BuyerProfile } from "./types";
 
 const router = useRouter();
 const { isAuthenticated, clearToken } = useAuth();
 
+const profile = ref<BuyerProfile | null>(null);
+
+onMounted(async () => {
+  if (isAuthenticated.value) {
+    try {
+      const res = await api.get<BuyerProfile>("/api/buyers/me/");
+      profile.value = res.data;
+    } catch {
+      // not critical
+    }
+  }
+});
+
 function logout() {
   clearToken();
+  profile.value = null;
   router.push({ name: "login" });
 }
+
+const userInitial = () =>
+  profile.value?.username?.[0]?.toUpperCase() ?? "?";
 </script>
 
 <template>
-  <div id="layout">
-    <nav v-if="isAuthenticated" class="navbar">
-      <span class="brand">Opply</span>
-      <div class="nav-links">
-        <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
-        <router-link :to="{ name: 'suppliers' }">Suppliers</router-link>
-        <router-link :to="{ name: 'orders' }">Orders</router-link>
+  <div id="app-root">
+    <!-- Sidebar -->
+    <aside v-if="isAuthenticated" class="sidebar">
+      <div class="sidebar-logo">Opply</div>
+      <nav class="sidebar-nav">
+        <router-link :to="{ name: 'dashboard' }" class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          Dashboard
+        </router-link>
+        <router-link :to="{ name: 'ingredients' }" class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Ingredients
+        </router-link>
+        <router-link :to="{ name: 'orders' }" class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+          </svg>
+          Orders
+        </router-link>
+        <router-link :to="{ name: 'suppliers' }" class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+          Suppliers
+        </router-link>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="logout-btn" @click="logout">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Logout
+        </button>
       </div>
-      <button class="logout-btn" @click="logout">Logout</button>
-    </nav>
-    <main :class="{ 'with-nav': isAuthenticated }">
+    </aside>
+
+    <!-- Main content -->
+    <main :class="{ 'with-sidebar': isAuthenticated }">
+      <div v-if="isAuthenticated" class="main-header">
+        <div class="user-avatar" :title="profile?.username">{{ userInitial() }}</div>
+      </div>
       <router-view />
     </main>
   </div>
 </template>
 
 <style>
+:root {
+  --purple: #3B1FA5;
+  --purple-dark: #2D1580;
+  --teal: #2ECDB0;
+  --bg: #F7F6FC;
+  --white: #FFFFFF;
+  --border: #E5E0F8;
+  --text: #1A1A2E;
+  --muted: #6B7280;
+  --green: #10B981;
+  --orange: #F59E0B;
+  --blue: #3B82F6;
+}
+
 *,
 *::before,
 *::after {
@@ -38,83 +106,126 @@ function logout() {
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, sans-serif;
-  background: #f9fafb;
-  color: #111827;
+  background: var(--bg);
+  color: var(--text);
 }
 </style>
 
 <style scoped>
-#layout {
+#app-root {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
 }
 
-.navbar {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 0 1.5rem;
-  height: 56px;
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
-  position: sticky;
+/* Sidebar */
+.sidebar {
+  position: fixed;
   top: 0;
+  left: 0;
+  width: 220px;
+  height: 100vh;
+  background: var(--purple);
+  display: flex;
+  flex-direction: column;
   z-index: 100;
 }
 
-.brand {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #1a56db;
-  margin-right: auto;
+.sidebar-logo {
+  background: var(--white);
+  color: var(--purple);
+  font-weight: 800;
+  font-size: 1.4rem;
+  padding: 1.25rem 1.5rem;
+  letter-spacing: -0.02em;
 }
 
-.nav-links {
+.sidebar-nav {
+  flex: 1;
+  padding: 1rem 0.75rem;
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.nav-links a {
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.875rem;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.75);
   text-decoration: none;
   font-size: 0.9rem;
-  color: #4b5563;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  transition: color 0.15s, background 0.15s;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
 }
 
-.nav-links a:hover {
-  color: #1a56db;
-  background: #eff6ff;
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
-.nav-links a.router-link-active {
-  color: #1a56db;
-  font-weight: 600;
+.nav-item.router-link-active {
+  background: var(--teal);
+  color: #fff;
+}
+
+.sidebar-bottom {
+  padding: 1rem 0.75rem 1.5rem;
 }
 
 .logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   background: none;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.85rem;
+  border: none;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.875rem;
   cursor: pointer;
-  color: #374151;
-  transition: border-color 0.15s, color 0.15s;
+  padding: 0.5rem 0.875rem;
+  border-radius: 8px;
+  width: 100%;
+  transition: background 0.15s, color 0.15s;
 }
 
 .logout-btn:hover {
-  border-color: #ef4444;
-  color: #ef4444;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
+/* Main */
 main {
   flex: 1;
-  padding: 2rem 1.5rem;
-  max-width: 1100px;
-  width: 100%;
-  margin: 0 auto;
+  background: var(--bg);
+  min-height: 100vh;
+  padding: 2rem;
+  position: relative;
+}
+
+main.with-sidebar {
+  margin-left: 220px;
+}
+
+.main-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--purple);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border);
+  cursor: default;
+  user-select: none;
 }
 </style>
