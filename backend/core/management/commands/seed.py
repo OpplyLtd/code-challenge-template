@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from buyers.models import Buyer
 from ingredients.models import Ingredient
 from orders.models import Order, OrderItem, OrderStatus
+from products.models import Product, ProductIngredient
 from suppliers.models import Supplier
 
 
@@ -113,7 +114,83 @@ class Command(BaseCommand):
             order_delivered.transition_to(OrderStatus.SHIPPED)
             order_delivered.transition_to(OrderStatus.DELIVERED)
 
+        # --- Products ---
+        # ingredient_pool indices:
+        #  0  Organic Rolled Oats       4  Unsalted Butter          9  Vanilla Extract
+        #  1  Dark Rye Flour            5  Double Cream            10  Cacao Powder
+        #  2  Spelt Flour               6  Full-Fat Milk Powder    11  Coconut Sugar
+        #  3  Barley Flakes             7  Cultured Buttermilk Pwd 12  Desiccated Coconut
+        #                               8  Whey Protein Concentrate 13  Sunflower Oil
+        #                                                           14  Cold-Pressed Rapeseed Oil
+        #                                                           15  Coconut Oil
+        if not Product.objects.filter(buyer=buyer).exists():
+            self._create_product(buyer,
+                name="Oat Milk",
+                description="Plant-based milk alternative made from whole grain oats.",
+                ingredients=[
+                    (ingredient_pool[0], "0.800"),   # Rolled Oats
+                    (ingredient_pool[13], "0.050"),  # Sunflower Oil
+                ],
+            )
+            self._create_product(buyer,
+                name="Granola",
+                description="Toasted oat and coconut granola, lightly sweetened.",
+                ingredients=[
+                    (ingredient_pool[0], "0.500"),   # Rolled Oats
+                    (ingredient_pool[12], "0.150"),  # Desiccated Coconut
+                    (ingredient_pool[11], "0.100"),  # Coconut Sugar
+                    (ingredient_pool[15], "0.080"),  # Coconut Oil
+                ],
+            )
+            self._create_product(buyer,
+                name="Chocolate Protein Bar",
+                description="High-protein snack bar with cacao and vanilla.",
+                ingredients=[
+                    (ingredient_pool[8], "0.300"),   # Whey Protein Concentrate
+                    (ingredient_pool[10], "0.150"),  # Cacao Powder
+                    (ingredient_pool[11], "0.100"),  # Coconut Sugar
+                    (ingredient_pool[12], "0.100"),  # Desiccated Coconut
+                    (ingredient_pool[9], "0.005"),   # Vanilla Extract
+                ],
+            )
+            self._create_product(buyer,
+                name="Spelt & Rye Loaf",
+                description="Dense, wholesome sourdough-style loaf using ancient grains.",
+                ingredients=[
+                    (ingredient_pool[2], "0.300"),   # Spelt Flour
+                    (ingredient_pool[1], "0.200"),   # Dark Rye Flour
+                    (ingredient_pool[3], "0.050"),   # Barley Flakes
+                ],
+            )
+            self._create_product(buyer,
+                name="Vanilla Butter Cake",
+                description="Classic vanilla sponge made with Alpine butter and spelt flour.",
+                ingredients=[
+                    (ingredient_pool[2], "0.250"),   # Spelt Flour
+                    (ingredient_pool[4], "0.150"),   # Unsalted Butter
+                    (ingredient_pool[11], "0.120"),  # Coconut Sugar
+                    (ingredient_pool[6], "0.050"),   # Full-Fat Milk Powder
+                    (ingredient_pool[9], "0.010"),   # Vanilla Extract
+                ],
+            )
+
         self.stdout.write(self.style.SUCCESS("Seed complete."))
+
+    def _create_product(
+        self,
+        buyer: Buyer,
+        name: str,
+        description: str,
+        ingredients: list[tuple[Ingredient, str]],
+    ) -> Product:
+        product = Product.objects.create(buyer=buyer, name=name, description=description)
+        for ingredient, quantity in ingredients:
+            ProductIngredient.objects.create(
+                product=product,
+                ingredient=ingredient,
+                quantity=quantity,
+            )
+        return product
 
     def _create_order(
         self,

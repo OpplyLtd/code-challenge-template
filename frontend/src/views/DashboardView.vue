@@ -73,6 +73,10 @@ const STAT_STATUSES: { status: OrderStatus; label: string; color: string }[] = [
           <code>PENDING → CONFIRMED → PROCESSING → SHIPPED → DELIVERED</code> (or
           <code>CANCELLED</code> from PENDING / CONFIRMED).
         </li>
+        <li>
+          <strong>Product</strong> — a named product belonging to a buyer, composed of an ordered
+          list of ingredients and their quantities.
+        </li>
       </ul>
       <p class="session-prompt">
         During your session you will be given a <strong>specific use case</strong> to implement.

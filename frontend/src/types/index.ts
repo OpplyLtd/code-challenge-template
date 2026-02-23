@@ -51,3 +51,21 @@ export interface OrderDetail extends Order {
   items: OrderItem[];
   updated_at: string;
 }
+
+export interface ProductIngredient {
+  ingredient: Ingredient;
+  quantity: string;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  description: string;
+  ingredient_count: number;
+  created_at: string;
+}
+
+export interface ProductDetail extends Product {
+  ingredients: ProductIngredient[];
+  updated_at: string;
+}

@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     "buyers",
     "ingredients",
     "orders",
+    "products",
     "core",
 ]
 
