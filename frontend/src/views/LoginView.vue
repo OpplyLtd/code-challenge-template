@@ -73,13 +73,13 @@ async function handleSubmit() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f5f5;
+  background: var(--bg);
 }
 
 .login-card {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(59, 31, 165, 0.12);
   padding: 2.5rem 2rem;
   width: 100%;
   max-width: 380px;
@@ -93,12 +93,14 @@ async function handleSubmit() {
 .login-header h1 {
   margin: 0;
   font-size: 2rem;
-  color: #1a56db;
+  font-weight: 800;
+  color: var(--purple);
+  letter-spacing: -0.03em;
 }
 
 .login-header p {
   margin: 0.25rem 0 0;
-  color: #6b7280;
+  color: var(--muted);
   font-size: 0.9rem;
 }
 
@@ -117,36 +119,39 @@ async function handleSubmit() {
 .field label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--text);
 }
 
 .field input {
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 0.6rem 0.8rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 0.65rem 0.875rem;
   font-size: 0.9rem;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  color: var(--text);
 }
 
 .field input:focus {
-  border-color: #1a56db;
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(59, 31, 165, 0.12);
 }
 
 button[type="submit"] {
   margin-top: 0.5rem;
-  background: #1a56db;
+  background: var(--purple);
   color: #fff;
   border: none;
-  border-radius: 6px;
-  padding: 0.7rem;
+  border-radius: 8px;
+  padding: 0.75rem;
   font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
 }
 
 button[type="submit"]:hover:not(:disabled) {
-  background: #1648c0;
+  background: var(--purple-dark);
 }
 
 button[type="submit"]:disabled {
@@ -164,12 +169,13 @@ button[type="submit"]:disabled {
   text-align: center;
   margin-top: 1.5rem;
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--muted);
 }
 
 .hint code {
-  background: #f3f4f6;
+  background: var(--bg);
   padding: 0.1rem 0.4rem;
   border-radius: 4px;
+  font-family: monospace;
 }
 </style>

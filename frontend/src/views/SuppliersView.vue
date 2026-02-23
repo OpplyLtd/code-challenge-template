@@ -20,90 +20,152 @@ function goToDetail(id: number) {
 
 <template>
   <div>
-    <h2>Suppliers</h2>
+    <h1 class="page-title">My Suppliers</h1>
     <div v-if="loading" class="loading">Loading…</div>
-    <div v-else class="grid">
-      <div
-        v-for="supplier in suppliers"
-        :key="supplier.id"
-        class="card"
-        @click="goToDetail(supplier.id)"
-      >
-        <h3>{{ supplier.name }}</h3>
-        <p class="description">{{ supplier.description }}</p>
-        <div class="meta">
-          <span class="ingredient-count">{{ supplier.ingredient_count }} ingredients</span>
-          <span class="view-link">View details →</span>
-        </div>
-      </div>
+    <div v-else-if="suppliers.length === 0" class="empty">No suppliers found.</div>
+    <div v-else class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>SUPPLIER NAME</th>
+            <th>DESCRIPTION</th>
+            <th>INGREDIENTS</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="supplier in suppliers"
+            :key="supplier.id"
+            class="clickable-row"
+            @click="goToDetail(supplier.id)"
+          >
+            <td class="supplier-name">{{ supplier.name }}</td>
+            <td class="description">{{ supplier.description }}</td>
+            <td>{{ supplier.ingredient_count }}</td>
+            <td @click.stop class="actions-cell">
+              <button class="btn-outline" @click="goToDetail(supplier.id)">
+                View Details
+              </button>
+              <button
+                class="btn-primary"
+                @click="router.push({ name: 'order-create', query: { supplier: supplier.id } })"
+              >
+                Place Order
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 
 <style scoped>
-h2 {
-  margin-top: 0;
+.page-title {
+  margin: 0 0 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--purple);
 }
 
-.loading {
-  color: #6b7280;
+.loading,
+.empty {
+  color: var(--muted);
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.25rem;
-}
-
-.card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
+.table-wrap {
+  background: var(--white);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 1.25rem;
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.data-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  background: #FAFAFA;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.clickable-row {
   cursor: pointer;
-  transition: box-shadow 0.15s, border-color 0.15s;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  transition: background 0.1s;
 }
 
-.card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border-color: #1a56db;
+.clickable-row:hover {
+  background: #F7F6FC;
 }
 
-.card h3 {
-  margin: 0;
-  font-size: 1rem;
-  color: #111827;
+.supplier-name {
+  font-weight: 600;
+  color: var(--purple);
 }
 
 .description {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #4b5563;
-  line-height: 1.5;
-  flex: 1;
+  color: var(--muted);
+  max-width: 360px;
 }
 
-.meta {
+.actions-cell {
   display: flex;
-  justify-content: space-between;
+  gap: 0.5rem;
   align-items: center;
-  margin-top: 0.5rem;
 }
 
-.ingredient-count {
+.btn-outline {
+  border: 1.5px solid var(--purple);
+  color: var(--purple);
+  background: none;
+  border-radius: 6px;
+  padding: 0.35rem 0.85rem;
   font-size: 0.8rem;
-  color: #6b7280;
-  background: #f3f4f6;
-  padding: 0.2rem 0.6rem;
-  border-radius: 9999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
 }
 
-.view-link {
+.btn-outline:hover {
+  background: var(--purple);
+  color: #fff;
+}
+
+.btn-primary {
+  background: var(--purple);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.35rem 0.85rem;
   font-size: 0.8rem;
-  color: #1a56db;
-  font-weight: 500;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.btn-primary:hover {
+  background: var(--purple-dark);
 }
 </style>
