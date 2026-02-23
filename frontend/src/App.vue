@@ -75,7 +75,7 @@ const userInitial = () =>
     <!-- Main content -->
     <main :class="{ 'with-sidebar': isAuthenticated }">
       <div v-if="isAuthenticated" class="main-header">
-        <div class="user-avatar" :title="profile?.username">{{ userInitial() }}</div>
+        <div v-if="profile" class="user-avatar" :title="profile.username">{{ userInitial() }}</div>
       </div>
       <router-view />
     </main>
