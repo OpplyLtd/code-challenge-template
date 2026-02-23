@@ -14,8 +14,11 @@ This repository is a minimal but real working application exposing Opply's core 
 erDiagram
     User ||--|| Buyer : "has profile"
     Buyer ||--o{ Order : "places"
+    Buyer ||--o{ Product : "owns"
     Order ||--o{ OrderItem : "contains"
     OrderItem }o--|| Ingredient : "references"
+    Product ||--o{ ProductIngredient : "composed of"
+    ProductIngredient }o--|| Ingredient : "references"
     Ingredient }o--|| Supplier : "offered by"
 
     User {
@@ -48,6 +51,16 @@ erDiagram
         int quantity
         decimal unit_price
     }
+    Product {
+        int id
+        string name
+        string description
+        datetime created_at
+    }
+    ProductIngredient {
+        int id
+        decimal quantity
+    }
 ```
 
 ### Order State Machine
@@ -78,10 +91,11 @@ code-challenge-template/
 │   ├── buyers/               # Buyer profile model, API
 │   ├── ingredients/          # Ingredient model, API
 │   ├── orders/               # Order + OrderItem + state machine
+│   ├── products/             # Product + ProductIngredient, API
 │   └── core/                 # Shared management commands (seed)
 └── frontend/                 # Vue 3 + Vite + TypeScript SPA
     └── src/
-        ├── views/            # LoginView, Dashboard, Suppliers, Orders
+        ├── views/            # LoginView, Dashboard, Suppliers, Orders, Products
         ├── services/         # Axios API clients
         ├── composables/      # useAuth
         └── types/            # Shared TypeScript interfaces
@@ -139,6 +153,8 @@ npm run dev
 | GET, POST | `/api/orders/` | Token | List / create orders |
 | GET | `/api/orders/<id>/` | Token | Order detail with items |
 | POST | `/api/orders/<id>/transition/` | Token | Advance order state |
+| GET, POST | `/api/products/` | Token | List / create products |
+| GET, PATCH, PUT, DELETE | `/api/products/<id>/` | Token | Product detail, update, delete |
 
 All authenticated endpoints require the header:
 ```
